@@ -34,11 +34,13 @@ void fClose(int){
 
 using namespace std;
 
+#define SIZE 100
+
 int main(int argc, char* argv[]){
 	setlocale(LC_ALL, "Russian");
 
 #ifdef _MSC_VER
-	char string[100];
+	char string[SIZE];
 	strcpy(string, argv[1]);
 	strcat(string, "close");
 	HANDLE fatherEvent = OpenEvent(EVENT_ALL_ACCESS, true,

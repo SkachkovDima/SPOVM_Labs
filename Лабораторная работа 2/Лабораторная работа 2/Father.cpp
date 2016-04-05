@@ -134,8 +134,9 @@ int addProcess(int number){
 	strcat(string, "close");
 	closeEvent = CreateEvent(NULL, true, false, string);
 	strcpy(string, "");
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++){
 		strcat(string, itoa(number, buffer, DEC));
+	}
 	strcat(string, " ");
 	strcat(string, itoa(number, buffer, DEC));
 	if (!CreateProcess(WINPATH, string,
