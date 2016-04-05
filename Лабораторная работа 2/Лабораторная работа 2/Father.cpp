@@ -28,14 +28,26 @@ void fFather(int){
 #endif
 
 using namespace std;
+
+#define WINPATH "..//Debug//Child.exe"
+#define LINUXPATH "/home/linux/Рабочий стол/child"
+#define SIZE 100
+#define DEC 10
+
 int addProcess(int);
 void closeProcess(int); 
 void showProcessInformation(list<int>&);
 void closeAllProcess(list<int>&);
 void closeAllProcess(int);
+void launch();
 
 int main(){
 	setlocale(LC_ALL, "Russian");
+	launch();
+	return 0;
+}
+
+void launch(){
 
 #ifdef _MSC_VER
 
@@ -43,15 +55,16 @@ int main(){
 		"fatherEvent");
 	HANDLE childEvent;
 
-	char buffer[100], string[100];
+	char buffer[SIZE], string[SIZE];
 	int number = 0;
 
 	while (true){
 		if (kbhit() != 0){
 			switch (getch()){
 			case '+':
-				if (!addProcess(number))
-					return 0;
+				if (!addProcess(number)){
+					exit(0);
+				}
 				number++;
 				break;
 			case '-':
@@ -63,13 +76,13 @@ int main(){
 
 			case 'q':
 				closeAllProcess(number);
-				return 0;
+				exit(0);
 			}
 		}
 		for (int counter = 0; counter < number; counter++){
 			WaitForSingleObject(fatherEvent, INFINITE);
 			childEvent = OpenEvent(EVENT_ALL_ACCESS, true,
-				itoa(counter, buffer, 10));
+				itoa(counter, buffer, DEC));
 			SetEvent(childEvent);
 		}
 		Sleep(3);
@@ -95,14 +108,13 @@ int main(){
 			break;
 		case 'q':
 			closeAllProcess(pids);
-			return 0;
+			exit(0);
 		}
 		showProcessInformation(pids);
 	}
 
 #endif
 
-	return 0;
 }
 
 int addProcess(int number){
@@ -113,20 +125,20 @@ int addProcess(int number){
 	PROCESS_INFORMATION pi;
 	HANDLE childEvent;
 	HANDLE closeEvent;
-	char string[100], buffer[100];
+	char string[SIZE], buffer[SIZE];
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
-	strcpy(string, itoa(number, buffer, 10));
+	strcpy(string, itoa(number, buffer, DEC));
 	childEvent = CreateEvent(NULL, false, true, string);
 	strcat(string, "close");
 	closeEvent = CreateEvent(NULL, true, false, string);
 	strcpy(string, "");
 	for (int i = 0; i < 4; i++)
-		strcat(string, itoa(number, buffer, 10));
+		strcat(string, itoa(number, buffer, DEC));
 	strcat(string, " ");
-	strcat(string, itoa(number, buffer, 10));
-	if (!CreateProcess("..//Debug//Child.exe", string,
+	strcat(string, itoa(number, buffer, DEC));
+	if (!CreateProcess(WINPATH, string,
 		NULL, NULL, true, 0, NULL, NULL, &si, &pi)){
 		cout << "CreateProcess error!" << endl;
 		return 0;
@@ -134,6 +146,7 @@ int addProcess(int number){
 	return 1;
 
 #else
+
 	int pidChildren;
 	char buffer[100];
 	pidChildren = fork();
@@ -142,8 +155,8 @@ int addProcess(int number){
 		cout << "Create process failed!";
 		break;
 	case 0:
-		execl("/home/linux/Рабочий стол/child",
-			"/home/linux/Рабочий стол/child",
+		execl(linuxPath,
+			linuxPath,
 			itoa(number), NULL);
 		break;
 	}
@@ -156,9 +169,9 @@ int addProcess(int number){
 void closeProcess(int number){
 
 #ifdef _MSC_VER
-	char string[100], buffer[100];
+	char string[SIZE], buffer[SIZE];
 	HANDLE closeEvent;
-	strcpy(string, itoa(number, buffer, 10));
+	strcpy(string, itoa(number, buffer, DEC));
 	strcat(string, "close");
 	closeEvent = OpenEvent(EVENT_ALL_ACCESS, true, string);
 	SetEvent(closeEvent);
@@ -177,7 +190,7 @@ void closeProcess(int number){
 #ifdef _MSC_VER
 
 void closeAllProcess(int number){
-	char string[100], buffer[100];
+	char string[SIZE], buffer[SIZE];
 	HANDLE closeEvent;
 	for (int counter = 0; counter < number; counter++)
 		closeProcess(counter);
@@ -220,7 +233,7 @@ char getch() {
 
 char* itoa(int tmp){
 	char* buffer;
-	int size = 0, mas[100], i;
+	int size = 0, mas[SIZE], i;
 	if (tmp == 0){
 		buffer = new char[2];
 		buffer[0] = 48;
